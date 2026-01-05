@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Pipeline - Interactive Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            overflow: hidden;
+        }
+
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f7fafc;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+        }
+
+        .message.system .message-content {
+            background: #edf2f7;
+            color: #4a5568;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .model-selector select {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 0.9em;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .model-selector select:focus {
+            border-color: #667eea;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-area input:focus {
+            border-color: #667eea;
+        }
+
+        .input-area button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .input-area button:hover {
+            transform: scale(1.05);
+        }
+
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .sidebar {
+            background: #f7fafc;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #2d3748;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .json-viewer {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .history-item.user {
+            border-left-color: #764ba2;
+        }
+
+        .history-item .role {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .history-item .content {
+            color: #4a5568;
+            font-size: 0.9em;
+        }
+
+        .log-item {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #4a5568;
+            border-left: 3px solid #48bb78;
+        }
+
+        .clear-btn {
+            margin: 10px 20px;
+            padding: 10px 20px;
+            background: #fc8181;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .clear-btn:hover {
+            background: #f56565;
+        }
+
+        .example-queries {
+            margin-top: 10px;
+        }
+
+        .example-query {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        .example-query:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Chat Section -->
+        <div class="chat-section">
+            <div class="header">
+                <h1>🚀 Agentic Pipeline Chat</h1>
+                <div class="status">
+                    <div class="status-dot"></div>
+                    <span id="statusText">Connected</span>
+                </div>
+            </div>
+
+            <div class="messages" id="messages">
+                <div class="message system">
+                    <div class="message-content">
+                        Welcome to the Agentic Pipeline! Ask me about vessel trajectories, loitering detection, or list
+                        vessels.
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="model-selector">
+                    <select id="modelSelect">
+                        <option value="llama3">🦙 Llama 3 (Best)</option>
+                        <option value="phi3">⚡ Phi 3 (Fast)</option>
+                        <option value="mistral">🌪️ Mistral</option>
+                    </select>
+                </div>
+                <input type="text" id="queryInput"
+                    placeholder="Ask about vessels... (e.g., 'Show trajectory of MMSI 369970581')"
+                    onkeypress="if(event.key === 'Enter') sendQuery()">
+                <button onclick="sendQuery()" id="sendBtn">Send</button>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">Pipeline Details</div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('intent')">Intent JSON</div>
+                <div class="tab" onclick="switchTab('history')">History</div>
+                <div class="tab" onclick="switchTab('logs')">Logs</div>
+            </div>
+
+            <div id="intentTab" class="tab-content">
+                <div id="intentJson" class="json-viewer"></div>
+            </div>
+
+            <div id="historyTab" class="tab-content" style="display: none;">
+                <div id="historyList"></div>
+                <button class="clear-btn" onclick="clearHistory()">Clear History</button>
+            </div>
+
+            <div id="logsTab" class="tab-content" style="display: none;">
+                <div id="logsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentIntent = null;
+
+        // Connect to WebSocket
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:8001/ws');
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                updateStatus('Connected', true);
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                updateStatus('Disconnected', false);
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateStatus('Error', false);
+            };
+        }
+
+        function handleMessage(data) {
+            console.log('Received:', data);
+
+            switch (data.type) {
+                case 'status':
+                    addSystemMessage(data.message);
+                    break;
+
+                case 'intent':
+                    currentIntent = data.data;
+                    displayIntent(data.data);
+                    addSystemMessage('✓ Intent parsed successfully');
+                    break;
+
+                case 'log':
+                    displayLogs(data.data);
+                    break;
+
+                case 'result':
+                    if (data.success) {
+                        const message = data.data?.message || 'Query completed';
+                        addAssistantMessage(message, data.data);
+                    } else {
+                        addAssistantMessage(`Error: ${data.error}`, null);
+                    }
+                    enableInput();
+                    break;
+
+                case 'history':
+                    displayHistory(data.data);
+                    break;
+
+                case 'error':
+                    addAssistantMessage(`Error: ${data.message}`, null);
+                    enableInput();
+                    break;
+            }
+        }
+
+        function sendQuery() {
+            const input = document.getElementById('queryInput');
+            const modelSelect = document.getElementById('modelSelect');
+            const query = input.value.trim();
+            const model = modelSelect.value;
+
+            if (!query || !ws || ws.readyState !== WebSocket.OPEN) {
+                return;
+            }
+
+            addUserMessage(query);
+            ws.send(JSON.stringify({ query, model }));
+            input.value = '';
+            disableInput();
+        }
+
+        function setQuery(query) {
+            document.getElementById('queryInput').value = query;
+        }
+
+        function addUserMessage(text) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addAssistantMessage(text, data) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+
+            let content = escapeHtml(text);
+            if (data && data.count) {
+                content += `<br><small>Results: ${data.count}</small>`;
+            }
+
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            messageDiv.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function displayIntent(intent) {
+            const intentDiv = document.getElementById('intentJson');
+            if (intent) {
+                intentDiv.textContent = JSON.stringify(intent, null, 2);
+            } else {
+                intentDiv.textContent = 'No intent data';
+            }
+        }
+
+        function displayLogs(logs) {
+            const logsDiv = document.getElementById('logsList');
+            logsDiv.innerHTML = '';
+
+            logs.forEach((log, index) => {
+                const logDiv = document.createElement('div');
+                logDiv.className = 'log-item';
+                logDiv.textContent = `${index + 1}. ${log}`;
+                logsDiv.appendChild(logDiv);
+            });
+        }
+
+        function displayHistory(history) {
+            const historyDiv = document.getElementById('historyList');
+            historyDiv.innerHTML = '';
+
+            history.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `history-item ${item.role}`;
+                itemDiv.innerHTML = `
+                    <div class="role">${item.role.toUpperCase()}</div>
+                    <div class="content">${escapeHtml(item.content)}</div>
+                `;
+                historyDiv.appendChild(itemDiv);
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.getElementById('intentTab').style.display = tabName === 'intent' ? 'block' : 'none';
+            document.getElementById('historyTab').style.display = tabName === 'history' ? 'block' : 'none';
+            document.getElementById('logsTab').style.display = tabName === 'logs' ? 'block' : 'none';
+        }
+
+        function updateStatus(text, connected) {
+            document.getElementById('statusText').textContent = text;
+            const dot = document.querySelector('.status-dot');
+            dot.style.background = connected ? '#48bb78' : '#fc8181';
+        }
+
+        function disableInput() {
+            document.getElementById('queryInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+        }
+
+        function enableInput() {
+            document.getElementById('queryInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        async function clearHistory() {
+            try {
+                await fetch('http://localhost:8001/api/clear', { method: 'POST' });
+                document.getElementById('historyList').innerHTML = '<p>History cleared</p>';
+                addSystemMessage('Conversation history cleared');
+            } catch (error) {
+                console.error('Failed to clear history:', error);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        connectWebSocket();
+    </script>
+</body>
+
+</html>
