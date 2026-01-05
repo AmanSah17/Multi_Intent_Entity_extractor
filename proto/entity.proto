@@ -1,0 +1,15 @@
+syntax = "proto3";
+import "common.proto";
+
+message EntityRequest {
+  string session_id = 1;
+  string user_query = 2;
+}
+
+message EntityResponse {
+  repeated Entity entities = 1;
+}
+
+service EntityService {
+  rpc ExtractEntities(EntityRequest) returns (EntityResponse);
+}

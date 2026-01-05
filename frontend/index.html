@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Darshak Intent Service</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Maritime Intent Extractor</h1>
+            <p>Enter a command to analyze maritime intent and extract vessel details.</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <textarea id="inputText"
+                    placeholder="e.g., What was the position of 125478654 between January 3rd 2025 and January 5th 2025"></textarea>
+                <div class="controls">
+                    <button id="analyzeBtn">Analyze Command</button>
+                    <span id="loading" class="hidden">Processing...</span>
+                </div>
+            </div>
+
+            <!-- Validation Warning (New) -->
+            <div id="validationWarning" class="warning-box hidden">
+                <strong>Attention:</strong> <span id="validationMessage"></span>
+            </div>
+
+            <div id="results" class="results-section hidden">
+                <!-- Intent Card -->
+                <div class="card">
+                    <h2>Intent Detected</h2>
+                    <div class="result-value" id="intentDisplay">--</div>
+                </div>
+
+                <!-- Extraction Details Card -->
+                <div class="card">
+                    <h2>Extracted Details</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">Vessel Name</span>
+                            <span class="value" id="vesselDisplay">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Time Horizon</span>
+                            <span class="value" id="timeDisplay">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Identifiers Card -->
+                <div class="card">
+                    <h2>Identifiers</h2>
+                    <ul id="identifiersList" class="identifiers-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Data Table Section (New) -->
+            <div id="dataSection" class="data-section hidden">
+                <h2>Vessel Track Data</h2>
+                <div class="table-container">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Lat</th>
+                                <th>Lon</th>
+                                <th>SOG</th>
+                                <th>COG</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

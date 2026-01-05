@@ -1,0 +1,35 @@
+
+from enum import Enum
+
+class IntentType(str, Enum):
+    # Level-1: Primary Intents
+    VESSEL_QUERY = "VESSEL_QUERY"
+    BEHAVIOR_ANALYSIS = "BEHAVIOR_ANALYSIS"
+    PORT_ACTIVITY = "PORT_ACTIVITY"
+    REGULATORY_COMPLIANCE = "REGULATORY_COMPLIANCE"
+    SITUATIONAL_AWARENESS = "SITUATIONAL_AWARENESS"
+    SYSTEM_ACTION = "SYSTEM_ACTION"
+
+class BehaviorSubIntent(str, Enum):
+    # Level-2: Behavior Analysis Sub-Intents
+    LOITERING = "LOITERING"
+    DARK_ACTIVITY = "DARK_ACTIVITY"
+    RENDEZVOUS = "RENDEZVOUS"
+    ANOMALOUS_ROUTE = "ANOMALOUS_ROUTE"
+    SPEED_ANOMALY = "SPEED_ANOMALY"
+
+class ComplianceSubIntent(str, Enum):
+    # Level-2: Regulatory Compliance Sub-Intents
+    EEZ_VIOLATION = "EEZ_VIOLATION"
+    FISHING_VIOLATION = "FISHING_VIOLATION"
+    AIS_MANIPULATION = "AIS_MANIPULATION"
+
+class EntityType(str, Enum):
+    # Level-3: Parameters / Modifiers
+    TIME_RANGE = "TIME_RANGE"
+    GEO_REGION = "GEO_REGION"
+    VESSEL_CLASS = "VESSEL_CLASS"
+    CONFIDENCE_THRESHOLD = "CONFIDENCE_THRESHOLD"
+    MMSI = "MMSI"
+    IMO = "IMO"
+    VESSEL_NAME = "VESSEL_NAME"

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message ExplainRequest {
+  string session_id = 1;
+  repeated Intent intents = 2;
+  repeated Entity entities = 3;
+  map<string,string> results = 4; // e.g., analysis results
+}
+
+message ExplainResponse {
+  string explanation = 1;
+}
+
+service ExplainerService {
+  rpc Explain(ExplainRequest) returns (ExplainResponse);
+}

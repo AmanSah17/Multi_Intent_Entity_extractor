@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "common.proto";
+
+message IntentRequest {
+  string session_id = 1;
+  string user_query = 2;
+  repeated Entity context_entities = 3; // from deterministic / history
+}
+
+message IntentResponse {
+  repeated Intent intents = 1;
+}
+
+service IntentService {
+  rpc ExtractIntent(IntentRequest) returns (IntentResponse);
+}

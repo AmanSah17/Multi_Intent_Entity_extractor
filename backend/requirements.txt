@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+transformers
+torch>=2.2.0
+pydantic
+python-multipart
+spacy
+dateparser
+langchain
+langchain-community
+langchain-openai
+duckdb
+duckdb-engine
+python-dotenv

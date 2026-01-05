@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message Entity {
+  string type = 1;
+  string value = 2;
+  float confidence = 3; // from LLM
+}
+
+message Intent {
+  string intent = 1;
+  float confidence = 2;
+  repeated string evidence = 3;
+}

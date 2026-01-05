@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message PlannerRequest {
+  string session_id = 1;
+  repeated Intent intents = 2;
+  repeated Entity entities = 3;
+}
+
+message PlannerResponse {
+  repeated string steps = 1; // deterministic plans
+}
+
+service PlannerService {
+  rpc Plan(PlannerRequest) returns (PlannerResponse);
+}
+
